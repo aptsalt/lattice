@@ -13,6 +13,7 @@ import {
 import { drag } from 'd3-drag';
 import { forceCenter, forceCollide, forceLink, forceManyBody, forceSimulation, forceX, forceY, Simulation } from 'd3-force';
 import { select, Selection } from 'd3-selection';
+import 'd3-transition';
 import { zoom, zoomIdentity } from 'd3-zoom';
 import { Subgraph } from '../../../core/models';
 import { GraphTooltip, SimLink, SimNode, color, degrees, ensureGraphStyles, radius, relationLabel, shortName } from '../graph-shared';
@@ -165,7 +166,8 @@ export class GraphForceComponent {
       .append('circle')
       .attr('class', 'body')
       .attr('r', (d) => radius(d, deg.get(d.id)))
-      .attr('fill', (d) => color(d));
+      .attr('fill', (d) => color(d))
+      .attr('color', (d) => color(d));
     this.nodeSel.filter((d) => d.used).append('circle').attr('class', 'ring').attr('r', (d) => radius(d, deg.get(d.id)) + 4);
     this.nodeSel.filter((d) => d.seed && !d.used).append('circle').attr('class', 'seed').attr('r', (d) => radius(d, deg.get(d.id)) + 4);
     this.nodeSel
@@ -178,14 +180,41 @@ export class GraphForceComponent {
     const labelPad = (d: SimNode): number => Math.min(60, shortName(d.name).length * 2.6);
     this.sim = forceSimulation<SimNode>(nodes)
       .force('link', forceLink<SimNode, SimLink>(links).id((d) => d.id).distance((l) => (l.used ? 90 : 120)).strength(0.5))
-      .force('charge', forceManyBody().strength(-420).distanceMax(420))
+      .force('charge', forceManyBody().strength(-330).distanceMax(380))
       .force('collide', forceCollide<SimNode>().radius((d) => radius(d, deg.get(d.id)) + 10 + labelPad(d) * 0.45).strength(0.9))
       .force('center', forceCenter(w / 2, h / 2 - 16))
       .force('x', forceX<SimNode>(w / 2).strength((d) => (d.used ? 0.07 : 0.025)))
       .force('y', forceY<SimNode>(h / 2 - 16).strength((d) => (d.used ? 0.07 : 0.025)))
       .alpha(1)
       .alphaDecay(0.035)
-      .on('tick', () => this.tick());
+      .on('tick', () => {
+        this.tick();
+        // early fit once the layout is mostly stable, final fit when it stops
+        if (!fitted && (this.sim?.alpha() ?? 1) < 0.2) {
+          fitted = true;
+          fit();
+        }
+      })
+      .on('end', () => fit());
+
+    // fit the settled layout into the panel (and again on background double-click)
+    let fitted = false;
+    const fit = (): void => {
+      const xs = nodes.map((n) => n.x ?? 0);
+      const ys = nodes.map((n) => n.y ?? 0);
+      const pad = 48;
+      const bw = Math.max(1, Math.max(...xs) - Math.min(...xs) + pad * 2 + 90);
+      const bh = Math.max(1, Math.max(...ys) - Math.min(...ys) + pad * 2);
+      const cw = hostEl.clientWidth || w;
+      const ch = hostEl.clientHeight || h;
+      const k = Math.min(1.15, cw / bw, ch / bh);
+      const cx = (Math.min(...xs) + Math.max(...xs)) / 2 + 30;
+      const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+      svg.transition().duration(500).call(zoomBehavior.transform, zoomIdentity.translate(cw / 2 - cx * k, ch / 2 - cy * k).scale(k));
+    };
+    svg.on('dblclick', (ev: MouseEvent) => {
+      if ((ev.target as Element).tagName === 'svg') fit();
+    });
 
     this.applyClasses();
 

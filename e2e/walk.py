@@ -36,7 +36,7 @@ async def main() -> int:
         # open evidence (force)
         await page.get_by_role("button", name="Evidence").first.click()
         await page.wait_for_selector("app-graph-force svg g", timeout=10000)
-        await page.wait_for_timeout(2600)
+        await page.wait_for_timeout(3600)
         await page.locator("app-evidence").scroll_into_view_if_needed()
         await page.screenshot(path=OUT / "03-evidence-force.png")
 

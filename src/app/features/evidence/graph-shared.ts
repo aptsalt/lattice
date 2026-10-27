@@ -13,8 +13,8 @@ export interface SimLink extends SimulationLinkDatum<SimNode> {
 export const color = (n: Pick<SubgraphNode, 'label'>): string => LABEL_COLORS[n.label];
 
 export const radius = (n: SubgraphNode, degree = 0): number => {
-  const base = n.seed ? 9 : n.used ? 8 : n.label === 'Rule' || n.label === 'Section' ? 5 : 6.5;
-  return base + Math.min(3, degree * 0.35);
+  const base = n.used ? 6.5 : n.seed ? 6 : n.label === 'Rule' || n.label === 'Section' ? 3.6 : 4.4;
+  return base + Math.min(2, degree * 0.25);
 };
 
 export const shortName = (name: string, max = 24): string => (name.length > max ? name.slice(0, max - 1) + '…' : name);
@@ -97,19 +97,19 @@ export const GRAPH_STYLES = `
   .graph-tip .tip-row { display: flex; justify-content: space-between; gap: 12px; font-family: var(--mono); font-size: 11px; color: var(--muted); }
   .graph-tip .tip-row b { color: var(--text); font-weight: 500; text-align: right; }
   .graph-tip .tip-foot { margin-top: 6px; font-family: var(--mono); font-size: 10.5px; color: var(--faint); }
-  .graph-host .link { stroke: var(--line-2); stroke-opacity: .9; fill: none; transition: stroke-opacity 160ms ease; }
-  .graph-host .link.used { stroke: var(--accent); stroke-opacity: .85; }
+  .graph-host .link { stroke: var(--graph-line); stroke-opacity: .7; fill: none; transition: stroke-opacity 160ms ease; }
+  .graph-host .link.used { stroke: var(--accent-2); stroke-opacity: .95; filter: drop-shadow(0 0 3px var(--accent)); }
   .graph-host .link.cross { stroke-dasharray: 3 4; stroke-opacity: .5; }
   .graph-host .link.dim { stroke-opacity: .12; }
   .graph-host .link-label { font: 9.5px var(--mono); fill: var(--muted); text-anchor: middle; pointer-events: none; opacity: 0; transition: opacity 120ms ease; }
   .graph-host .link-label.show { opacity: 1; }
   .graph-host .node { cursor: pointer; }
-  .graph-host .node circle.body { stroke: var(--bg); stroke-width: 1.5px; transition: opacity 160ms ease; }
-  .graph-host .node circle.ring { fill: none; stroke: var(--ring); stroke-width: 2.5px; }
-  .graph-host .node circle.halo { fill: var(--ring); opacity: .18; }
+  .graph-host .node circle.body { stroke: none; filter: drop-shadow(0 0 3px currentColor) drop-shadow(0 0 7px currentColor); transition: opacity 160ms ease; }
+  .graph-host .node circle.ring { fill: none; stroke: var(--ring); stroke-width: 1.8px; filter: drop-shadow(0 0 4px var(--ring)); }
+  .graph-host .node circle.halo { fill: var(--ring); opacity: .1; }
   .graph-host .node circle.seed { fill: none; stroke: var(--accent-2); stroke-width: 1.5px; stroke-dasharray: 2 3; }
-  .graph-host .node text { font: 10.5px var(--sans); fill: var(--text); paint-order: stroke; stroke: var(--bg); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; }
-  .graph-host .node.minor text { fill: var(--muted); font-size: 9.5px; }
+  .graph-host .node text { font: 500 10px var(--sans); fill: var(--text); paint-order: stroke; stroke: var(--graph-bg); stroke-width: 3px; stroke-linejoin: round; pointer-events: none; }
+  .graph-host .node.minor text { fill: var(--muted); font-size: 9px; font-weight: 400; }
   .graph-host .node.dim { opacity: .18; }
   .graph-host .node.hover circle.body { stroke: var(--text); }
   .graph-host .node.selected circle.body { stroke: var(--accent-2); stroke-width: 2.5px; }

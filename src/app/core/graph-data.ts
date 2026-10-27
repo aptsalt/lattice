@@ -307,14 +307,15 @@ export const SUGGESTED_QUESTIONS: string[] = [
   'How much notice do I need to give for two weeks of annual leave?',
 ];
 
+/** Fluorescent palette for the near-black graph canvas (validated: chroma, CVD separation, contrast). */
 export const LABEL_COLORS: Record<GraphNode['label'], string> = {
-  Region: '#a78bfa',
-  Country: '#60a5fa',
-  Policy: '#f59e0b',
-  LeaveType: '#34d399',
-  Rule: '#f472b6',
-  Regulation: '#fb923c',
-  EmployeeType: '#22d3ee',
-  Approver: '#facc15',
-  Section: '#94a3b8',
+  Region: '#b26bff',
+  Country: '#00e5ff',
+  Policy: '#ffb000',
+  LeaveType: '#2bff88',
+  Rule: '#ff2d95',
+  Regulation: '#ff6a00',
+  EmployeeType: '#4d8bff',
+  Approver: '#ffe600',
+  Section: '#8a94b8',
 };

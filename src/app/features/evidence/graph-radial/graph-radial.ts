@@ -169,7 +169,8 @@ export class GraphRadialComponent {
       .append('circle')
       .attr('class', 'body')
       .attr('r', (d) => radius(d.data.node))
-      .attr('fill', (d) => color(d.data.node));
+      .attr('fill', (d) => color(d.data.node))
+      .attr('color', (d) => color(d.data.node));
     this.nodeSel.filter((d) => d.data.node.used).append('circle').attr('class', 'ring').attr('r', (d) => radius(d.data.node) + 4);
     this.nodeSel.filter((d) => d.data.node.seed && !d.data.node.used).append('circle').attr('class', 'seed').attr('r', (d) => radius(d.data.node) + 4);
     this.nodeSel
