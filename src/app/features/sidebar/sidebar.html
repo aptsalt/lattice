@@ -1,0 +1,87 @@
+<aside class="sidebar">
+  <header class="brand">
+    <a class="logo" routerLink="/" (click)="store.newConversation()" aria-label="Lattice home">
+      <span class="logo-tile" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="18" height="18">
+          <circle cx="12" cy="5" r="2.2" fill="currentColor" />
+          <circle cx="5" cy="18" r="2.2" fill="currentColor" />
+          <circle cx="19" cy="18" r="2.2" fill="currentColor" />
+          <circle cx="12" cy="13" r="2.6" fill="currentColor" />
+          <path d="M12 7.2v3.2M7 16.6l3-2.2M17 16.6l-3-2.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+        </svg>
+      </span>
+      <span class="logo-text">Lattice</span>
+    </a>
+    <button class="icon-btn" type="button" (click)="store.newConversation()" title="New conversation" aria-label="New conversation">
+      <lucide-icon [img]="icons.newChat" [size]="18" />
+    </button>
+  </header>
+
+  <label class="search">
+    <lucide-icon [img]="icons.search" [size]="15" />
+    <input type="search" placeholder="Search conversations" [value]="store.search()" (input)="onSearch($event)" aria-label="Search conversations" />
+  </label>
+
+  <nav class="list" aria-label="Conversations">
+    @if (store.groups().length === 0) {
+      <p class="empty">
+        @if (store.search()) {
+          No conversations match.
+        } @else {
+          Your conversations will appear here.
+        }
+      </p>
+    }
+    @for (group of store.groups(); track group.label) {
+      <div class="group">
+        <h3 class="group-label">{{ group.label }}</h3>
+        @for (c of group.items; track c.id) {
+          <div class="item" [class.active]="c.id === store.activeId()" (click)="store.select(c.id)" role="button" tabindex="0" (keydown.enter)="store.select(c.id)">
+            <lucide-icon class="item-icon" [img]="icons.message" [size]="15" />
+            @if (editingId() === c.id) {
+              <input
+                class="rename"
+                type="text"
+                [value]="draft()"
+                (input)="draft.set($any($event.target).value)"
+                (keydown.enter)="commitRename(c.id)"
+                (keydown.escape)="cancelRename()"
+                (blur)="commitRename(c.id)"
+                (click)="$event.stopPropagation()"
+                autofocus
+                aria-label="Rename conversation"
+              />
+            } @else if (confirmId() === c.id) {
+              <span class="confirm">
+                <span>Delete?</span>
+                <button type="button" class="yes" (click)="confirmDelete(c.id, $event)">Yes</button>
+                <button type="button" (click)="cancelDelete($event)">No</button>
+              </span>
+            } @else {
+              <span class="title">{{ c.title }}</span>
+              <span class="actions">
+                <button type="button" class="mini" (click)="startRename(c.id, c.title, $event)" title="Rename" aria-label="Rename">
+                  <lucide-icon [img]="icons.pencil" [size]="13" />
+                </button>
+                <button type="button" class="mini danger" (click)="askDelete(c.id, $event)" title="Delete" aria-label="Delete">
+                  <lucide-icon [img]="icons.trash" [size]="13" />
+                </button>
+              </span>
+            }
+          </div>
+        }
+      </div>
+    }
+  </nav>
+
+  <footer class="foot">
+    <a class="foot-link" routerLink="/architecture" routerLinkActive="active">
+      <lucide-icon [img]="icons.layers" [size]="15" />
+      <span>Architecture</span>
+    </a>
+    <span class="graph-stat mono" title="Knowledge graph size">{{ graphSize.nodes }} nodes · {{ graphSize.edges }} rels</span>
+    <button class="icon-btn" type="button" (click)="theme.toggle()" [title]="theme.theme() === 'dark' ? 'Switch to light' : 'Switch to dark'" aria-label="Toggle theme">
+      <lucide-icon [img]="theme.theme() === 'dark' ? icons.sun : icons.moon" [size]="16" />
+    </button>
+  </footer>
+</aside>

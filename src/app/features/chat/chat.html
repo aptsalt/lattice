@@ -1,0 +1,95 @@
+<div class="chat">
+  <header class="topbar">
+    <h1 class="topbar-title">{{ title() }}</h1>
+    <div class="topbar-right">
+      <span class="status mono" [class.offline]="store.settings().source === 'offline'">
+        <i class="dot"></i>
+        {{ store.settings().source === 'live' ? 'Neo4j live' : 'resolved.json' }}
+      </span>
+      <button
+        class="icon-btn"
+        type="button"
+        cdkOverlayOrigin
+        #menuOrigin="cdkOverlayOrigin"
+        (click)="menuOpen.set(!menuOpen())"
+        [attr.aria-expanded]="menuOpen()"
+        aria-label="Conversation menu"
+        title="Conversation menu"
+      >
+        <lucide-icon [img]="icons.more" [size]="18" />
+      </button>
+      <ng-template
+        cdkConnectedOverlay
+        [cdkConnectedOverlayOrigin]="menuOrigin"
+        [cdkConnectedOverlayOpen]="menuOpen()"
+        [cdkConnectedOverlayPositions]="positions"
+        [cdkConnectedOverlayHasBackdrop]="true"
+        cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+        (backdropClick)="menuOpen.set(false)"
+        (detach)="menuOpen.set(false)"
+        (overlayKeydown)="$event.key === 'Escape' && menuOpen.set(false)"
+      >
+        <div class="menu" role="menu">
+          <button class="menu-item" role="menuitem" type="button" (click)="export()" [disabled]="!store.active()">
+            <lucide-icon [img]="icons.copy" [size]="15" />
+            <span class="menu-item-text">Export conversation <small>JSON with evidence</small></span>
+          </button>
+          <button class="menu-item" role="menuitem" type="button" (click)="clear()" [disabled]="store.isEmpty()">
+            <lucide-icon [img]="icons.trash" [size]="15" />
+            <span class="menu-item-text">Clear conversation <small>Keeps the thread, removes messages</small></span>
+          </button>
+        </div>
+      </ng-template>
+    </div>
+  </header>
+
+  <div class="scroller" #scroller>
+    @if (store.isEmpty()) {
+      <section class="hero">
+        <div class="hero-nebula" aria-hidden="true"></div>
+        <div class="hero-tile" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="30" height="30">
+            <circle cx="12" cy="5" r="2.2" fill="currentColor" />
+            <circle cx="5" cy="18" r="2.2" fill="currentColor" />
+            <circle cx="19" cy="18" r="2.2" fill="currentColor" />
+            <circle cx="12" cy="13" r="2.6" fill="currentColor" />
+            <path d="M12 7.2v3.2M7 16.6l3-2.2M17 16.6l-3-2.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+        </div>
+        <p class="hero-hi mono">{{ greeting() }},</p>
+        <h2 class="hero-title mono">What do you want to know about leave?</h2>
+        <p class="hero-sub">
+          Answers come only from the leave-policy knowledge graph — World → North America → United States, Mexico, Canada —
+          with every claim cited to a policy section and the subgraph it was drawn from.
+        </p>
+        <div class="chips" aria-label="Suggested questions">
+          @for (q of suggestions; track q) {
+            <button class="chip" type="button" (click)="ask(q)">{{ q }}</button>
+          }
+        </div>
+      </section>
+    } @else {
+      <section class="thread">
+        @for (m of store.messages(); track m.id) {
+          @if (m.role === 'user') {
+            <article class="user">
+              <div class="meta">
+                <span class="avatar" aria-hidden="true">Y</span>
+                <span class="name">You</span>
+                <time class="time mono">{{ m.at | date: 'h:mm a' }}</time>
+              </div>
+              <div class="bubble">{{ m.text }}</div>
+            </article>
+          } @else {
+            <app-message [message]="m" />
+          }
+        }
+      </section>
+    }
+  </div>
+
+  <footer class="dock">
+    <app-composer (send)="ask($event)" />
+    <p class="disclaimer">Lattice only answers from the graph and cites every claim. Policy figures are illustrative, not legal advice.</p>
+  </footer>
+</div>

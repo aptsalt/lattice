@@ -1,0 +1,116 @@
+<div class="page">
+  <header class="head">
+    <a routerLink="/" class="back">← Back to chat</a>
+    <h1>Hybrid Graph-RAG, end to end</h1>
+    <p class="lede">
+      Lattice is the Angular front end of a three-tier system: <strong>Angular 21</strong> → <strong>FastAPI</strong> → <strong>Neo4j</strong>.
+      The browser talks to one endpoint, <code>POST /chat</code>, and renders whatever evidence the service returns. In this
+      public demo the service is mocked in the browser with the same contract, so everything you see is the real UI over a
+      faithful pipeline.
+    </p>
+  </header>
+
+  <section class="tier">
+    <h2>Three tiers</h2>
+    <div class="tiers">
+      <article>
+        <h3>Angular 21 <span class="mono">this app</span></h3>
+        <ul>
+          <li>Standalone, zoneless, signals-first; OnPush everywhere.</li>
+          <li>Conversation list in the sidebar; every retrieval control lives in the composer.</li>
+          <li>Evidence panel: four subgraph views, facts, sources, Cypher, trace.</li>
+          <li>Swap <code>RagEngine.chat()</code> for an <code>HttpClient</code> call — nothing else changes.</li>
+        </ul>
+      </article>
+      <article>
+        <h3>FastAPI <span class="mono">service</span></h3>
+        <ul>
+          <li><code>POST /chat</code> runs the eight-stage pipeline below and streams the answer (SSE).</li>
+          <li>Settings per request: data source, retrieval mode, context on/off, LLM on/off.</li>
+          <li>Offline mode reads <code>resolved.json</code>, a snapshot exported from the graph.</li>
+          <li>Every stage is timed and logged; the trace you see is the server's own log.</li>
+        </ul>
+      </article>
+      <article>
+        <h3>Neo4j <span class="mono">knowledge graph</span></h3>
+        <ul>
+          <li>Entities extracted from policy documents become typed nodes with provenance.</li>
+          <li>Full-text index on names/aliases; vector index on entity + passage embeddings.</li>
+          <li>Typed relations carry a confidence and the section they came from.</li>
+          <li>Taxonomy: World → North America → USA / MEX / CAN → policy → leave type → rule.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <h2>The request pipeline</h2>
+    <ol class="stages">
+      @for (s of stages; track s.n) {
+        <li>
+          <span class="n mono">{{ s.n }}</span>
+          <div>
+            <h3>{{ s.title }}</h3>
+            <p>{{ s.what }}</p>
+            <p class="tech mono">{{ s.tech }}</p>
+          </div>
+        </li>
+      }
+    </ol>
+  </section>
+
+  <section>
+    <h2>Graph schema</h2>
+    <table class="schema">
+      <tbody>
+        @for (row of schema; track row[0]) {
+          <tr>
+            <td class="mono">{{ row[0] }}</td>
+            <td>{{ row[1] }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Why hybrid, why graph</h2>
+    <div class="why">
+      <article>
+        <h3>Lexical alone</h3>
+        <p>Exact on names and section numbers, blind to paraphrase ("time off" vs "annual leave").</p>
+      </article>
+      <article>
+        <h3>Vector alone</h3>
+        <p>Catches paraphrase, but a flat top-k of chunks cannot tell you that Canada's carryover rule <em>overrides</em> the global one.</p>
+      </article>
+      <article>
+        <h3>Hybrid + graph</h3>
+        <p>Fuse both to find the right entry points, then <strong>walk the typed relations</strong> to collect the exact rules, their overrides, the statutes behind them and the sections that prove them. The answer is composed only from that subgraph, and the subgraph is what you see in Evidence.</p>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <h2>API contract</h2>
+    <pre class="mono"><code>POST /chat
+{{ '{' }}
+  "question": "What is the carryover rule in Canada?",
+  "conversationId": "c_01",
+  "settings": {{ '{' }} "source": "live", "mode": "hybrid", "useContext": true, "generateAnswer": true {{ '}' }},
+  "history": [ {{ '{' }} "role": "user", "text": "..." {{ '}' }} ]
+{{ '}' }}
+
+200 OK
+{{ '{' }}
+  "resolvedQuestion": "...", "answerMarkdown": "... [1] ...", "confidence": "high",
+  "stats": {{ '{' }} "facts": 42, "passages": 6, "matchedEntities": 10, "mode": "hybrid", "source": "live", "latencyMs": 612 {{ '}' }},
+  "facts": [ {{ '{' }} "subject", "relation", "object", "confidence", "usedInAnswer", "sectionId" {{ '}' }} ],
+  "passages": [ {{ '{' }} "id", "ref", "title", "breadcrumb", "text", "country" {{ '}' }} ],
+  "citations": [ {{ '{' }} "n": 1, "passageId": "s-ca-22" {{ '}' }} ],
+  "subgraph": {{ '{' }} "nodes": [ {{ '{' }} "id", "label", "name", "seed", "used", "hop" {{ '}' }} ], "edges": [ ... ] {{ '}' }},
+  "trace": [ {{ '{' }} "id", "title", "detail", "ms", "nodeIds", "cypher" {{ '}' }} ],
+  "cypher": "MATCH ..."
+{{ '}' }}</code></pre>
+  </section>
+</div>

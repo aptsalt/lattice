@@ -57,7 +57,20 @@ export interface GraphNode {
   props?: Record<string, string | number>;
   /** Country scope for context resolution (ISO-ish). */
   country?: 'USA' | 'MEX' | 'CAN' | 'GLOBAL';
+  /** One grounded sentence the answer composer can quote (rules only). */
+  summary?: string;
+  /** Topic facets a rule answers (rules only), e.g. 'entitlement', 'carryover'. */
+  facets?: Facet[];
 }
+
+export type Facet =
+  | 'entitlement'
+  | 'carryover'
+  | 'notice'
+  | 'approval'
+  | 'eligibility'
+  | 'pay'
+  | 'regulation';
 
 export interface GraphEdge {
   id: string;

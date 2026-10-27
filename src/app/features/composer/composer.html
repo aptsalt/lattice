@@ -1,0 +1,124 @@
+<div class="wrap">
+  @if (followUps().length) {
+    <div class="followups" aria-label="Suggested follow-ups">
+      @for (q of followUps(); track q) {
+        <button class="followup" type="button" (click)="useFollowUp(q)">{{ q }}</button>
+      }
+    </div>
+  }
+
+  <form class="composer" (submit)="$event.preventDefault(); submit()" [class.busy]="store.busy()">
+    <textarea
+      #ta
+      class="input"
+      rows="1"
+      placeholder="Ask about leave policy…"
+      [value]="text()"
+      (input)="onInput($event)"
+      (keydown)="onKeydown($event)"
+      [disabled]="store.busy()"
+      aria-label="Your question"
+    ></textarea>
+
+    <div class="row">
+      <div class="controls">
+        <!-- data source -->
+        <button
+          class="pill"
+          type="button"
+          cdkOverlayOrigin
+          #srcOrigin="cdkOverlayOrigin"
+          (click)="toggleMenu('source')"
+          [attr.aria-expanded]="openMenu() === 'source'"
+          title="Data source"
+        >
+          <lucide-icon [img]="icons.database" [size]="14" />
+          <span>{{ sourceLabel() }}</span>
+          <lucide-icon [img]="icons.chevronDown" [size]="12" class="caret" />
+        </button>
+        <ng-template
+          cdkConnectedOverlay
+          [cdkConnectedOverlayOrigin]="srcOrigin"
+          [cdkConnectedOverlayOpen]="openMenu() === 'source'"
+          [cdkConnectedOverlayPositions]="positions"
+          [cdkConnectedOverlayHasBackdrop]="true"
+          cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+          (backdropClick)="openMenu.set(null)"
+          (detach)="openMenu.set(null)"
+          (overlayKeydown)="$event.key === 'Escape' && openMenu.set(null)"
+        >
+          <div class="menu" role="menu">
+            <div class="menu-title">Data source</div>
+            @for (o of sourceOptions; track o.value) {
+              <button class="menu-item" role="menuitemradio" type="button" [class.active]="store.settings().source === o.value" [attr.aria-checked]="store.settings().source === o.value" (click)="chooseSource(o.value)">
+                <span class="menu-item-text">{{ o.label }} <small>{{ o.hint }}</small></span>
+                @if (store.settings().source === o.value) {
+                  <lucide-icon [img]="icons.check" [size]="14" />
+                }
+              </button>
+            }
+          </div>
+        </ng-template>
+
+        <!-- retrieval mode -->
+        <button
+          class="pill"
+          type="button"
+          cdkOverlayOrigin
+          #modeOrigin="cdkOverlayOrigin"
+          (click)="toggleMenu('mode')"
+          [attr.aria-expanded]="openMenu() === 'mode'"
+          title="Retrieval mode"
+        >
+          <lucide-icon [img]="icons.waypoints" [size]="14" />
+          <span>{{ modeLabel() }}</span>
+          <lucide-icon [img]="icons.chevronDown" [size]="12" class="caret" />
+        </button>
+        <ng-template
+          cdkConnectedOverlay
+          [cdkConnectedOverlayOrigin]="modeOrigin"
+          [cdkConnectedOverlayOpen]="openMenu() === 'mode'"
+          [cdkConnectedOverlayPositions]="positions"
+          [cdkConnectedOverlayHasBackdrop]="true"
+          cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+          (backdropClick)="openMenu.set(null)"
+          (detach)="openMenu.set(null)"
+          (overlayKeydown)="$event.key === 'Escape' && openMenu.set(null)"
+        >
+          <div class="menu" role="menu">
+            <div class="menu-title">Retrieval mode</div>
+            @for (o of modeOptions; track o.value) {
+              <button class="menu-item" role="menuitemradio" type="button" [class.active]="store.settings().mode === o.value" [attr.aria-checked]="store.settings().mode === o.value" (click)="chooseMode(o.value)">
+                <span class="menu-item-text">{{ o.label }} <small>{{ o.hint }}</small></span>
+                @if (store.settings().mode === o.value) {
+                  <lucide-icon [img]="icons.check" [size]="14" />
+                }
+              </button>
+            }
+          </div>
+        </ng-template>
+
+        <!-- toggles -->
+        <button class="pill" type="button" [class.on]="store.settings().useContext" (click)="toggleContext()" [attr.aria-pressed]="store.settings().useContext" title="Use conversation context to resolve follow-ups">
+          <lucide-icon [img]="icons.message" [size]="14" />
+          <span>Context</span>
+        </button>
+        <button class="pill" type="button" [class.on]="store.settings().generateAnswer" (click)="toggleLlm()" [attr.aria-pressed]="store.settings().generateAnswer" title="Generate an LLM answer (off = extractive facts only)">
+          <lucide-icon [img]="icons.sparkles" [size]="14" />
+          <span>LLM answer</span>
+        </button>
+      </div>
+
+      <div class="right">
+        <span class="hint mono" aria-hidden="true">↵ send · ⇧↵ newline</span>
+        <button class="send" type="submit" [disabled]="!canSend()" [class.ready]="canSend()" aria-label="Send">
+          @if (store.busy()) {
+            <span class="spinner" aria-hidden="true"></span>
+          } @else {
+            <lucide-icon [img]="icons.arrowUp" [size]="18" />
+          }
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

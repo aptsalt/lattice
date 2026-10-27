@@ -2,10 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Lattice</title>
+  <title>Lattice — Graph-RAG leave policy assistant</title>
   <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="Hybrid Graph-RAG chat over a Neo4j leave-policy knowledge graph (World → North America → USA, Mexico, Canada). Angular 21 UI with interactive evidence subgraphs.">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    try {
+      var t = localStorage.getItem('lattice.theme');
+      if (t === 'light' || t === 'dark') document.documentElement.dataset['theme'] = t;
+    } catch (e) {}
+  </script>
 </head>
 <body>
   <app-root></app-root>

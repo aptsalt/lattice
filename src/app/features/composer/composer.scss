@@ -1,0 +1,152 @@
+:host {
+  display: block;
+}
+
+.wrap {
+  max-width: var(--content-w);
+  margin: 0 auto;
+}
+
+.followups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 4px 8px;
+  animation: fade 220ms ease;
+}
+
+.followup {
+  padding: 5px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  font-size: 12.5px;
+  transition: background 120ms ease, color 120ms ease;
+
+  &:hover {
+    background: var(--panel-2);
+    color: var(--text);
+  }
+}
+
+.composer {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line-2);
+  background: var(--panel);
+  box-shadow: var(--shadow-sm);
+  padding: 12px 12px 10px 16px;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+
+  &:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft), var(--shadow-sm);
+  }
+
+  &.busy {
+    opacity: 0.85;
+  }
+}
+
+.input {
+  display: block;
+  width: 100%;
+  min-height: 26px;
+  max-height: 180px;
+  resize: none;
+  border: 0;
+  outline: none;
+  background: none;
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  padding: 0;
+  margin-bottom: 10px;
+
+  &::placeholder {
+    color: var(--faint);
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.caret {
+  color: var(--faint);
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hint {
+  font-size: 10.5px;
+  color: var(--faint);
+}
+
+.send {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--panel-3);
+  color: var(--faint);
+  transition: background 140ms ease, color 140ms ease, transform 140ms ease;
+
+  &.ready {
+    background: var(--text);
+    color: var(--bg);
+  }
+
+  &.ready:hover {
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--line-2);
+  border-top-color: var(--accent);
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .hint {
+    display: none;
+  }
+}

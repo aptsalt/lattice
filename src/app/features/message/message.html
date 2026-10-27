@@ -1,0 +1,73 @@
+<article class="assistant" [class.streaming]="message().streaming">
+  <div class="meta">
+    <span class="avatar" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="15" height="15">
+        <circle cx="12" cy="5" r="2.2" fill="currentColor" />
+        <circle cx="5" cy="18" r="2.2" fill="currentColor" />
+        <circle cx="19" cy="18" r="2.2" fill="currentColor" />
+        <circle cx="12" cy="13" r="2.6" fill="currentColor" />
+        <path d="M12 7.2v3.2M7 16.6l3-2.2M17 16.6l-3-2.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+      </svg>
+    </span>
+    <span class="name">Lattice</span>
+    @if (response(); as r) {
+      <span class="badge" [class]="'badge ' + r.confidence" title="Grounding confidence">
+        <i class="badge-dot"></i>confidence: {{ r.confidence }}
+      </span>
+    }
+    <time class="time mono">{{ message().at | date: 'h:mm a' }}</time>
+  </div>
+
+  <div class="body">
+    @if (message().error) {
+      <p class="error">{{ message().error }}</p>
+    } @else if (!message().text && message().streaming) {
+      <div class="thinking" aria-live="polite">
+        <span class="pulse"></span>
+        <span class="mono">
+          {{ message().settings.mode }} retrieval · {{ message().settings.source === 'live' ? 'querying Neo4j' : 'reading resolved.json' }}…
+        </span>
+      </div>
+    } @else {
+      <div class="prose" [innerHTML]="html()" (click)="onBodyClick($event)" (keydown)="onBodyKeydown($event)"></div>
+    }
+
+    @if (response(); as r) {
+      @if (!message().streaming) {
+        <p class="stats mono">
+          {{ r.stats.facts }} facts · {{ r.stats.passages }} passages · {{ r.stats.matchedEntities }} matched entities · {{ r.stats.mode }} ·
+          {{ r.stats.source === 'live' ? 'live' : 'offline' }} · {{ r.stats.latencyMs }} ms
+          @if (r.resolvedQuestion !== previousQuestion()) {
+            <span class="resolved" title="Question after context resolution"> · resolved: “{{ r.resolvedQuestion }}”</span>
+          }
+        </p>
+
+        <div class="actions">
+          <button class="evidence-btn" type="button" (click)="toggleEvidence()" [attr.aria-expanded]="evidenceOpen()">
+            <lucide-icon [img]="icons.chevronRight" [size]="14" class="chev" [class.open]="evidenceOpen()" />
+            <span>Evidence</span>
+            <span class="count mono">{{ r.subgraph.nodes.length }} nodes · {{ usedFacts() }} used facts</span>
+          </button>
+          <span class="rail">
+            <button class="icon-btn sm" type="button" (click)="copy()" [title]="copied() ? 'Copied' : 'Copy answer'" aria-label="Copy answer">
+              <lucide-icon [img]="copied() ? icons.check : icons.copy" [size]="14" />
+            </button>
+            <button class="icon-btn sm" type="button" (click)="regenerate()" title="Regenerate with current settings" aria-label="Regenerate" [disabled]="store.busy()">
+              <lucide-icon [img]="icons.refresh" [size]="14" />
+            </button>
+            <button class="icon-btn sm" type="button" (click)="setVote('up')" [class.voted]="vote() === 'up'" title="Good answer" aria-label="Good answer">
+              <lucide-icon [img]="icons.thumbsUp" [size]="14" />
+            </button>
+            <button class="icon-btn sm" type="button" (click)="setVote('down')" [class.voted]="vote() === 'down'" title="Poor answer" aria-label="Poor answer">
+              <lucide-icon [img]="icons.thumbsDown" [size]="14" />
+            </button>
+          </span>
+        </div>
+
+        @if (evidenceOpen()) {
+          <app-evidence [response]="r" [tab]="evidenceTab()" (tabChange)="evidenceTab.set($event)" [highlightPassage]="highlightPassage()" />
+        }
+      }
+    }
+  </div>
+</article>

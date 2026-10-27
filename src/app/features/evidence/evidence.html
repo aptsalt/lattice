@@ -1,0 +1,87 @@
+<section class="evidence">
+  <div class="tabs" role="tablist">
+    @for (t of tabs; track t.id) {
+      <button class="tab" type="button" role="tab" [attr.aria-selected]="tab() === t.id" [class.active]="tab() === t.id" (click)="setTab(t.id)">
+        {{ t.label }}
+        @if (t.id === 'facts') {
+          <span class="n mono">{{ response().facts.length }}</span>
+        } @else if (t.id === 'sources') {
+          <span class="n mono">{{ response().passages.length }}</span>
+        } @else if (t.id === 'graph') {
+          <span class="n mono">{{ response().subgraph.nodes.length }}</span>
+        }
+      </button>
+    }
+  </div>
+
+  @switch (tab()) {
+    @case ('graph') {
+      <div class="graph-toolbar">
+        <div class="segmented" role="radiogroup" aria-label="Graph view">
+          @for (v of variants; track v.id) {
+            <button class="seg" type="button" role="radio" [attr.aria-checked]="variant() === v.id" [class.active]="variant() === v.id" (click)="setVariant(v.id)" [title]="v.hint">
+              {{ v.label }}
+            </button>
+          }
+        </div>
+        <p class="toolbar-hint mono">{{ usedCount() }} ringed = used in answer · dashed = retrieval seed</p>
+        <button class="pill" type="button" [class.on]="focusUsed()" (click)="focusUsed.set(!focusUsed())" [attr.aria-pressed]="focusUsed()" title="Dim everything the answer did not use">
+          <lucide-icon [img]="icons.zap" [size]="13" />
+          Focus
+        </button>
+      </div>
+
+      <div class="canvas">
+        @switch (variant()) {
+          @case ('force') {
+            @defer (on idle) {
+              <app-graph-force [subgraph]="response().subgraph" [focusUsed]="focusUsed()" (selected)="selectedNode.set($event)" />
+            } @placeholder {
+              <div class="loading mono">rendering…</div>
+            }
+          }
+          @case ('radial') {
+            @defer (on idle) {
+              <app-graph-radial [subgraph]="response().subgraph" [focusUsed]="focusUsed()" (selected)="selectedNode.set($event)" />
+            } @placeholder {
+              <div class="loading mono">rendering…</div>
+            }
+          }
+          @case ('orbit') {
+            @defer (on idle) {
+              <app-graph-orbit [subgraph]="response().subgraph" [focusUsed]="focusUsed()" (selected)="selectedNode.set($event)" />
+            } @placeholder {
+              <div class="loading mono">rendering…</div>
+            }
+          }
+          @case ('trace') {
+            @defer (on idle) {
+              <app-graph-trace [subgraph]="response().subgraph" [trace]="response().trace" (selected)="selectedNode.set($event)" />
+            } @placeholder {
+              <div class="loading mono">rendering…</div>
+            }
+          }
+        }
+
+        <div class="legend" aria-label="Legend">
+          @for (l of legend(); track l.label) {
+            <span class="legend-item"><i [style.background]="l.color"></i>{{ l.label }} <b class="mono">{{ l.count }}</b></span>
+          }
+          <span class="legend-item ring"><i></i>used in answer</span>
+        </div>
+      </div>
+    }
+    @case ('facts') {
+      <app-facts-table [facts]="response().facts" />
+    }
+    @case ('sources') {
+      <app-sources-list [passages]="response().passages" [citations]="response().citations" [highlight]="highlightPassage()" />
+    }
+    @case ('cypher') {
+      <app-cypher-view [response]="response()" />
+    }
+    @case ('trace') {
+      <app-trace-steps [trace]="response().trace" [stats]="response().stats" />
+    }
+  }
+</section>
