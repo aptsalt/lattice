@@ -20,8 +20,40 @@
   backdrop-filter: blur(10px);
 }
 
+.menu-btn {
+  display: none;
+  margin-right: 4px;
+}
+
+@media (max-width: 860px) {
+  .menu-btn {
+    display: inline-flex;
+  }
+  .topbar {
+    padding-left: 12px;
+  }
+  .thread,
+  .hero {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .dock {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .user .bubble,
+  .status {
+    margin-left: 0;
+  }
+  .status {
+    display: none;
+  }
+}
+
 .topbar-title {
   margin: 0;
+  flex: 1;
+  min-width: 0;
   font-size: 14px;
   font-weight: 500;
   color: var(--muted);

@@ -13,6 +13,10 @@ Angular tier with an in-browser engine that runs the same eight-stage pipeline
 and returns the same `POST /chat` contract, so the demo runs on GitHub Pages
 with no backend and the real service can be dropped in behind one method.
 
+![Feature tour](docs/tour.gif)
+
+▶ Full 72-second tour as video: [docs/tour.mp4](docs/tour.mp4) (composer controls → cited answer → sources → Force / Radial / Orbit / Replay → facts, Cypher, trace → context follow-up → comparison → LLM off → light theme → architecture)
+
 ![Hero](docs/screenshots/01-hero.png)
 
 ## What it does
@@ -29,6 +33,8 @@ with no backend and the real service can be dropped in behind one method.
 | Sources: cited passages with document breadcrumbs | Cypher: the exact queries the service ran for this turn |
 | ![Follow-up](docs/screenshots/06-followup.png) | ![Light](docs/screenshots/08-light.png) |
 | Conversation context: "And in Canada?" is resolved against the last turn | Light theme |
+| ![Mobile hero](docs/screenshots/10-mobile-hero.png) | ![Mobile evidence](docs/screenshots/10-mobile-evidence.png) |
+| Phone width: conversations become a drawer, controls wrap in the composer | The evidence graph at 400px |
 
 ### Feature parity with the Streamlit version, re-homed
 
@@ -119,7 +125,9 @@ share the tooltip, legend and focus logic in `graph-shared.ts`.
 npm install --legacy-peer-deps
 npm start                      # http://localhost:4200
 npm test -- --watch=false      # Vitest
-py -I e2e/walk.py http://localhost:4200   # Playwright walk, writes docs/screenshots
+py -I e2e/walk.py http://localhost:4200     # Playwright walk, writes docs/screenshots
+py -I e2e/mobile.py http://localhost:4200   # 400px smoke
+py -I e2e/tour.py http://localhost:4200     # records docs/tour.webm
 ```
 
 ## Wire in the real backend

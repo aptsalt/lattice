@@ -5,6 +5,7 @@ import { ChatStore } from '../../core/chat-store';
 import { ICONS } from '../../core/icons';
 import { ThemeService } from '../../core/theme';
 import { ALL_NODES, EDGES } from '../../core/graph-data';
+import { LayoutService } from '../../core/layout';
 
 @Component({
   selector: 'app-sidebar',
@@ -16,6 +17,7 @@ import { ALL_NODES, EDGES } from '../../core/graph-data';
 export class SidebarComponent {
   readonly store = inject(ChatStore);
   readonly theme = inject(ThemeService);
+  readonly layout = inject(LayoutService);
   readonly icons = ICONS;
   readonly graphSize = { nodes: ALL_NODES.length, edges: EDGES.length };
 

@@ -12,7 +12,7 @@
       </span>
       <span class="logo-text">Lattice</span>
     </a>
-    <button class="icon-btn" type="button" (click)="store.newConversation()" title="New conversation" aria-label="New conversation">
+    <button class="icon-btn" type="button" (click)="store.newConversation(); layout.closeSidebar()" title="New conversation" aria-label="New conversation">
       <lucide-icon [img]="icons.newChat" [size]="18" />
     </button>
   </header>
@@ -36,7 +36,7 @@
       <div class="group">
         <h3 class="group-label">{{ group.label }}</h3>
         @for (c of group.items; track c.id) {
-          <div class="item" [class.active]="c.id === store.activeId()" (click)="store.select(c.id)" role="button" tabindex="0" (keydown.enter)="store.select(c.id)">
+          <div class="item" [class.active]="c.id === store.activeId()" (click)="store.select(c.id); layout.closeSidebar()" role="button" tabindex="0" (keydown.enter)="store.select(c.id); layout.closeSidebar()">
             <lucide-icon class="item-icon" [img]="icons.message" [size]="15" />
             @if (editingId() === c.id) {
               <input

@@ -99,7 +99,11 @@ export class GraphOrbitComponent {
       this.auto = false;
       this.last = { x: ev.clientX, y: ev.clientY };
     });
-    window.addEventListener('mouseup', () => (this.dragging = false));
+    const up = (): void => {
+      this.dragging = false;
+    };
+    window.addEventListener('mouseup', up);
+    this.destroyRef.onDestroy(() => window.removeEventListener('mouseup', up));
     hostEl.addEventListener('mousemove', (ev) => {
       if (this.dragging) {
         this.rotY += (ev.clientX - this.last.x) * 0.008;

@@ -1,5 +1,8 @@
 <div class="chat">
   <header class="topbar">
+    <button class="icon-btn menu-btn" type="button" (click)="layout.toggleSidebar()" aria-label="Open conversations" title="Conversations">
+      <lucide-icon [img]="icons.panelLeft" [size]="18" />
+    </button>
     <h1 class="topbar-title">{{ title() }}</h1>
     <div class="topbar-right">
       <span class="status mono" [class.offline]="store.settings().source === 'offline'">

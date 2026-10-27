@@ -17,7 +17,7 @@ import { GraphForceComponent } from '../graph-force/graph-force';
     <app-graph-force [subgraph]="subgraph()" [visible]="visible()" (selected)="selected.emit($event)" />
     <div class="timeline">
       <button class="play" type="button" (click)="toggle()" [attr.aria-label]="playing() ? 'Pause' : 'Play'">
-        <lucide-icon [img]="playing() ? icons.x : icons.play" [size]="14" />
+        <lucide-icon [img]="playing() ? icons.pause : icons.play" [size]="14" />
       </button>
       <div class="steps" role="list">
         @for (s of steps(); track s.id; let i = $index) {

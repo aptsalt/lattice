@@ -42,3 +42,8 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# local recordings
+/docs/_frames
+/docs/_video
+/docs/tour.webm

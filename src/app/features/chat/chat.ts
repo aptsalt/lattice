@@ -17,6 +17,7 @@ import { SUGGESTED_QUESTIONS } from '../../core/graph-data';
 import { ComposerComponent } from '../composer/composer';
 import { MessageComponent } from '../message/message';
 import { MENU_BELOW } from '../../core/overlay-positions';
+import { LayoutService } from '../../core/layout';
 
 @Component({
   selector: 'app-chat',
@@ -27,6 +28,7 @@ import { MENU_BELOW } from '../../core/overlay-positions';
 })
 export class ChatComponent {
   readonly store = inject(ChatStore);
+  readonly layout = inject(LayoutService);
   readonly icons = ICONS;
   readonly suggestions = SUGGESTED_QUESTIONS;
   readonly menuOpen = signal(false);
