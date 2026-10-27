@@ -6,6 +6,8 @@
 .chat {
   display: grid;
   grid-template-rows: auto 1fr auto;
+  /* explicit column: the implicit auto column would grow to the content's max-content width on phones */
+  grid-template-columns: minmax(0, 1fr);
   height: 100%;
 }
 
