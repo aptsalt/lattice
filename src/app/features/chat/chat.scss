@@ -91,6 +91,7 @@
 
 .scroller {
   overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
   scroll-behavior: smooth;
 }
