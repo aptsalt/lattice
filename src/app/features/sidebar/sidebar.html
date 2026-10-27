@@ -75,11 +75,15 @@
   </nav>
 
   <footer class="foot">
-    <a class="foot-link" routerLink="/architecture" routerLinkActive="active">
+    <a class="foot-link" routerLink="/guide" routerLinkActive="active" (click)="layout.closeSidebar()" title="Every feature explained">
+      <lucide-icon [img]="icons.help" [size]="15" />
+      <span>Guide</span>
+    </a>
+    <a class="foot-link" routerLink="/architecture" routerLinkActive="active" (click)="layout.closeSidebar()" [title]="graphSize.nodes + ' nodes · ' + graphSize.edges + ' relationships'">
       <lucide-icon [img]="icons.layers" [size]="15" />
       <span>Architecture</span>
     </a>
-    <span class="graph-stat mono" title="Knowledge graph size">{{ graphSize.nodes }} nodes · {{ graphSize.edges }} rels</span>
+    <span class="spacer"></span>
     <button class="icon-btn" type="button" (click)="theme.toggle()" [title]="theme.theme() === 'dark' ? 'Switch to light' : 'Switch to dark'" aria-label="Toggle theme">
       <lucide-icon [img]="theme.theme() === 'dark' ? icons.sun : icons.moon" [size]="16" />
     </button>

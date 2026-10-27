@@ -40,10 +40,10 @@ async def main() -> int:
         await page.locator("app-evidence").scroll_into_view_if_needed()
         await page.screenshot(path=OUT / "03-evidence-force.png")
 
-        for variant, selector in [("Radial", "app-graph-radial svg g"), ("Orbit", "app-graph-orbit canvas"), ("Replay", "app-graph-trace")]:
+        for variant, selector in [("Radial", "app-graph-radial svg g"), ("Orbit", "app-graph-orbit canvas"), ("3D", "app-graph-three canvas"), ("Replay", "app-graph-trace")]:
             await page.get_by_role("radio", name=variant).click()
             await page.wait_for_selector(selector, timeout=10000)
-            await page.wait_for_timeout(2600 if variant == "Replay" else 1800)
+            await page.wait_for_timeout(2600 if variant in ("Replay", "3D") else 1800)
             await page.locator("app-evidence").scroll_into_view_if_needed()
             await page.screenshot(path=OUT / f"04-evidence-{variant.lower()}.png")
 
@@ -52,6 +52,14 @@ async def main() -> int:
             await page.wait_for_timeout(400)
             await page.locator("app-evidence").scroll_into_view_if_needed()
             await page.screenshot(path=OUT / f"05-evidence-{tab.lower()}.png")
+
+        # contextual help on the Cypher tab
+        await page.get_by_role("tab", name="Cypher").click()
+        await page.get_by_role("button", name="What is this tab?").click()
+        await page.wait_for_timeout(500)
+        await page.screenshot(path=OUT / "11-help-cypher.png")
+        await page.keyboard.press("Escape")
+        await page.wait_for_timeout(300)
 
         # follow-up with context on
         await page.get_by_role("button", name="And in Canada?").click()
@@ -72,10 +80,16 @@ async def main() -> int:
         await page.screenshot(path=OUT / "08-light.png")
         await page.get_by_role("button", name="Toggle theme").click()
 
-        # architecture page
+        # architecture and guide pages
         await page.get_by_role("link", name="Architecture").click()
         await page.wait_for_timeout(600)
         await page.screenshot(path=OUT / "09-architecture.png")
+        await page.get_by_role("link", name="Guide").click()
+        await page.wait_for_timeout(600)
+        await page.screenshot(path=OUT / "12-guide.png")
+        await page.locator("#cypher").scroll_into_view_if_needed()
+        await page.wait_for_timeout(500)
+        await page.screenshot(path=OUT / "12-guide-cypher.png")
 
         await browser.close()
 

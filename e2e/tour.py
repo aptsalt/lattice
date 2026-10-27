@@ -63,7 +63,7 @@ async def main() -> None:
         await page.wait_for_timeout(1600)
         await page.get_by_role("button", name="Focus").click()
         await page.wait_for_timeout(600)
-        for variant, wait in [("Radial", 2600), ("Orbit", 4200), ("Replay", 9500)]:
+        for variant, wait in [("Radial", 2600), ("Orbit", 4200), ("3D", 6000), ("Replay", 9500)]:
             await page.get_by_role("radio", name=variant).click()
             await page.wait_for_timeout(wait)
 

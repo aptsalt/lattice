@@ -9,6 +9,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { LucideAngularModule } from 'lucide-angular';
 import { ChatStore } from '../../core/chat-store';
@@ -22,7 +23,7 @@ import { LayoutService } from '../../core/layout';
 @Component({
   selector: 'app-chat',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, LucideAngularModule, OverlayModule, ComposerComponent, MessageComponent],
+  imports: [DatePipe, RouterLink, LucideAngularModule, OverlayModule, ComposerComponent, MessageComponent],
   templateUrl: './chat.html',
   styleUrl: './chat.scss',
 })

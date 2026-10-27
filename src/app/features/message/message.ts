@@ -28,7 +28,19 @@ export class MessageComponent {
   readonly copied = signal(false);
   readonly vote = signal<'up' | 'down' | null>(null);
 
-  readonly html = computed<SafeHtml>(() => this.sanitizer.bypassSecurityTrustHtml(renderMarkdown(this.message().text)));
+  /** Citation hover card text: "[2] §2.2 Vacation premium — Mexico Leave Policy v3.0 > 2 Vacaciones > 2.2 …" */
+  readonly html = computed<SafeHtml>(() => {
+    const res = this.message().response;
+    const title = (n: number): string => {
+      const c = res?.citations.find((x) => x.n === n);
+      const p = c && res?.passages.find((x) => x.id === c.passageId);
+      if (!p) return `Show source ${n}`;
+      // single line: a newline inside inline HTML would make marked split the paragraph
+      const snippet = p.text.length > 160 ? p.text.slice(0, 157).trimEnd() + '…' : p.text;
+      return `[${n}] ${p.ref} ${p.title} — ${p.breadcrumb} — ${snippet}`;
+    };
+    return this.sanitizer.bypassSecurityTrustHtml(renderMarkdown(this.message().text, title));
+  });
   readonly response = computed(() => this.message().response);
   readonly usedFacts = computed(() => this.response()?.facts.filter((f) => f.usedInAnswer).length ?? 0);
   /** The user turn this answer replies to (for the "resolved" hint). */

@@ -7,5 +7,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/architecture/architecture').then((m) => m.ArchitectureComponent),
     title: 'Lattice — Architecture',
   },
+  {
+    path: 'guide',
+    loadComponent: () => import('./features/guide/guide').then((m) => m.GuideComponent),
+    title: 'Lattice — Guide',
+  },
   { path: '**', redirectTo: '' },
 ];

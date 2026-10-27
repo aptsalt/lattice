@@ -12,6 +12,35 @@
         }
       </button>
     }
+    <button
+      class="icon-btn help-btn"
+      type="button"
+      cdkOverlayOrigin
+      #helpOrigin="cdkOverlayOrigin"
+      (click)="helpOpen.set(!helpOpen())"
+      [attr.aria-expanded]="helpOpen()"
+      aria-label="What is this tab?"
+      title="What is this tab?"
+    >
+      <lucide-icon [img]="icons.help" [size]="16" />
+    </button>
+    <ng-template
+      cdkConnectedOverlay
+      [cdkConnectedOverlayOrigin]="helpOrigin"
+      [cdkConnectedOverlayOpen]="helpOpen()"
+      [cdkConnectedOverlayPositions]="helpPositions"
+      [cdkConnectedOverlayHasBackdrop]="true"
+      cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+      (backdropClick)="helpOpen.set(false)"
+      (detach)="helpOpen.set(false)"
+      (overlayKeydown)="$event.key === 'Escape' && helpOpen.set(false)"
+    >
+      <div class="menu help-card" role="dialog" aria-label="Help">
+        <div class="menu-title">{{ help().title }}</div>
+        <p class="help-body">{{ help().body }}</p>
+        <a class="help-link mono" routerLink="/guide" (click)="helpOpen.set(false)">Full guide →</a>
+      </div>
+    </ng-template>
   </div>
 
   @switch (tab()) {
@@ -52,6 +81,13 @@
               <app-graph-orbit [subgraph]="response().subgraph" [focusUsed]="focusUsed()" (selected)="selectedNode.set($event)" />
             } @placeholder {
               <div class="loading mono">rendering…</div>
+            }
+          }
+          @case ('three') {
+            @defer (on idle) {
+              <app-graph-three [subgraph]="response().subgraph" [focusUsed]="focusUsed()" (selected)="selectedNode.set($event)" />
+            } @placeholder {
+              <div class="loading mono">loading three.js…</div>
             }
           }
           @case ('trace') {

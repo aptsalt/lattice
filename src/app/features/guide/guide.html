@@ -1,0 +1,189 @@
+<div class="page">
+  <header class="head">
+    <a routerLink="/" class="back">← Back to chat</a>
+    <h1>Every feature, explained</h1>
+    <p class="lede">
+      Lattice answers questions about leave policy from a Neo4j knowledge graph and shows its work. This page walks through
+      each control, badge and panel in the order you meet them. For the system design see
+      <a routerLink="/architecture">Architecture</a>.
+    </p>
+    <nav class="toc" aria-label="Sections">
+      <a href="#ask">1 Asking</a>
+      <a href="#answer">2 Reading an answer</a>
+      <a href="#evidence">3 Evidence</a>
+      <a href="#cypher">4 The Cypher tab</a>
+      <a href="#conversations">5 Conversations</a>
+      <a href="#keys">6 Shortcuts</a>
+    </nav>
+  </header>
+
+  <section id="ask">
+    <h2>1 · Asking a question</h2>
+    <p>Everything that shapes a request lives in the composer at the bottom of the chat. There are no hidden settings.</p>
+    <dl class="features">
+      <dt><span class="pill-demo">⛁ Live Neo4j ▾</span> Data source</dt>
+      <dd>
+        <strong>Live Neo4j</strong> runs Cypher against the database on every turn (latency is simulated in this demo).
+        <strong>Offline snapshot</strong> reads <code>resolved.json</code>, an export of the same graph, so the assistant works without a
+        database connection. The stats line and the status dot in the header show which one answered.
+      </dd>
+
+      <dt><span class="pill-demo">⌁ Hybrid ▾</span> Retrieval mode</dt>
+      <dd>
+        How the first entities ("seeds") are found before the graph is walked.
+        <ul>
+          <li><strong>Lexical</strong>: full-text match on entity names and aliases. Exact, but blind to paraphrase.</li>
+          <li><strong>Vector</strong>: embedding similarity. Catches "time off" for "annual leave", can drift.</li>
+          <li><strong>Hybrid</strong> (default): both lists merged with reciprocal-rank fusion.</li>
+          <li><strong>Graph</strong>: hybrid seeds, then a deeper 3-hop traversal for questions that span the taxonomy.</li>
+        </ul>
+        Switching mode changes the matched entities, the subgraph and often the answer; the Trace tab shows which stages ran.
+      </dd>
+
+      <dt><span class="pill-demo on">▭ Context</span> Use conversation context</dt>
+      <dd>
+        When on, a short follow-up such as <em>"And in Canada?"</em> is rewritten with the country, leave type and topic of the previous
+        turn before retrieval. The rewritten question appears after <code>resolved:</code> in the stats line. Turn it off to treat every
+        message as standalone.
+      </dd>
+
+      <dt><span class="pill-demo on">✦ LLM answer</span> Generate LLM answer</dt>
+      <dd>
+        When on, the language model writes prose from the retrieved facts and passages only, with a citation after every claim.
+        When off, you get the grounding facts verbatim as a list, which is useful for checking what the model would have been allowed to say.
+      </dd>
+
+      <dt>Suggestion and follow-up chips</dt>
+      <dd>
+        On an empty conversation the chips above the composer are good first questions. After each answer the chips become
+        follow-ups that exercise context resolution ("And in Mexico?", "Who approves it?").
+      </dd>
+    </dl>
+  </section>
+
+  <section id="answer">
+    <h2>2 · Reading an answer</h2>
+    <dl class="features">
+      <dt><span class="badge-demo high">● confidence: high</span></dt>
+      <dd>
+        A grounding score, not a probability. <strong>High</strong>: two or more entities in the question matched the graph and at least
+        two rules back the answer. <strong>Medium</strong>: a single match; the answer tells you to check the sources. <strong>Low</strong>:
+        nothing matched and the assistant says it cannot find that in the graph rather than guessing.
+      </dd>
+
+      <dt><span class="cite-demo">1</span> Citations</dt>
+      <dd>
+        Every claim ends with a numbered chip. Hover for the section title, its position in the policy document and a snippet;
+        click to open the Evidence panel on that passage.
+      </dd>
+
+      <dt><span class="mono stat-demo">46 facts · 4 passages · 10 matched entities · hybrid · live · 1517 ms</span></dt>
+      <dd>
+        <strong>facts</strong>: triples in the retrieved subgraph · <strong>passages</strong>: policy sections cited ·
+        <strong>matched entities</strong>: seeds found by retrieval · the retrieval mode and data source that answered · end-to-end latency.
+      </dd>
+
+      <dt>Action rail</dt>
+      <dd>Copy the answer as markdown, regenerate it with the current composer settings, or rate it. Ratings are local to this demo.</dd>
+    </dl>
+  </section>
+
+  <section id="evidence">
+    <h2>3 · The Evidence panel</h2>
+    <p>Open it with the <strong>Evidence</strong> button under any answer. It has five tabs; each one is a different lens on the same retrieval.</p>
+    <dl class="features">
+      <dt>Subgraph</dt>
+      <dd>
+        The slice of the knowledge graph the answer was built from. Nodes are entities, coloured by label (Country, Policy, LeaveType,
+        Rule, Regulation, Approver…); edges are typed relations such as <code>HAS_RULE</code> or <code>OVERRIDES</code>.
+        <ul>
+          <li><strong>Yellow ring</strong>: the answer relied on this node.</li>
+          <li><strong>Dashed ring</strong>: retrieval matched this node to the question (a seed).</li>
+          <li><strong>Plain</strong>: pulled in by the traversal but not used.</li>
+          <li><strong>Focus</strong> dims everything the answer did not use.</li>
+        </ul>
+        Five views of the same subgraph: <strong>Force</strong> (physics layout; drag to pin, double-click to release, hover for properties and
+        relation names), <strong>Radial</strong> (the taxonomy as a tree from World outward; dashed arcs are relations outside the tree),
+        <strong>Orbit</strong> (a rotating 3D canvas; drag to turn), <strong>3D</strong> (WebGL force graph; particles run along the edges the
+        answer used; click a node to fly to it) and <strong>Replay</strong> (lights nodes up in the order the pipeline touched them).
+        Your last choice is remembered.
+      </dd>
+
+      <dt>Facts</dt>
+      <dd>
+        Every (subject, relation, object) triple in the subgraph with the confidence stored on the relationship at ingestion. Rows
+        with the yellow bar are the grounding facts; the checkbox hides the rest. Click a column header to sort.
+      </dd>
+
+      <dt>Sources</dt>
+      <dd>
+        The policy passages behind the grounding facts, numbered to match the citations. The breadcrumb shows where each section sits
+        in its document (policy › chapter › section) and the tag shows which country policy it belongs to.
+      </dd>
+
+      <dt>Cypher</dt>
+      <dd>The exact database queries this turn ran. Explained in full in the next section.</dd>
+
+      <dt>Trace</dt>
+      <dd>
+        One row per pipeline stage: resolve, lexical, vector, fuse, expand, rank, cite, answer. Each shows what it did, how long it took
+        and how many graph nodes it touched. This is the same data the Replay view animates.
+      </dd>
+    </dl>
+  </section>
+
+  <section id="cypher">
+    <h2>4 · The Cypher tab</h2>
+    <p>
+      <strong>Cypher</strong> is Neo4j's query language, the graph equivalent of SQL. A pattern like
+      <code>(r:Rule)-[:CITED_IN]-&gt;(s:Section)</code> reads "a Rule node connected by a CITED_IN relationship to a Section node".
+      The tab shows the queries the FastAPI service sent to Neo4j for the current answer so an engineer can paste them into Neo4j
+      Browser and reproduce the evidence by hand. Clause by clause:
+    </p>
+    <table class="cypher">
+      <tbody>
+        @for (row of cypher; track row[0]) {
+          <tr>
+            <td class="mono">{{ row[0] }}</td>
+            <td>{{ row[1] }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+    <p>
+      Lexical mode shows only the full-text query, vector mode only the vector query, hybrid and graph show both plus the expansion.
+      In graph mode <code>maxLevel</code> rises from 2 to 3.
+    </p>
+  </section>
+
+  <section id="conversations">
+    <h2>5 · Conversations</h2>
+    <dl class="features">
+      <dt>Sidebar</dt>
+      <dd>
+        Only conversations live here, grouped by Today, Yesterday, Previous 7 days and Older. Search filters by title and message text.
+        Hover a row to rename or delete it. The <strong>+</strong> button starts a new conversation.
+      </dd>
+      <dt>Conversation menu (⋯)</dt>
+      <dd><strong>Export</strong> downloads the thread as JSON including every answer's evidence. <strong>Clear</strong> empties the thread but keeps it in the list.</dd>
+      <dt>Persistence</dt>
+      <dd>Conversations, composer settings, theme and your preferred graph view are stored in this browser. Nothing leaves the page in the demo.</dd>
+      <dt>Theme</dt>
+      <dd>The sun/moon button in the sidebar footer switches between dark and light.</dd>
+    </dl>
+  </section>
+
+  <section id="keys">
+    <h2>6 · Keyboard</h2>
+    <table class="keys">
+      <tbody>
+        <tr><td><kbd>Enter</kbd></td><td>Send</td></tr>
+        <tr><td><kbd>Shift</kbd> + <kbd>Enter</kbd></td><td>New line</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>Close a menu or popover</td></tr>
+        <tr><td><kbd>Tab</kbd> to a citation, <kbd>Enter</kbd></td><td>Open its source</td></tr>
+        <tr><td>Scroll on a graph</td><td>Zoom</td></tr>
+        <tr><td>Drag a node (Force)</td><td>Pin it; double-click to release</td></tr>
+      </tbody>
+    </table>
+  </section>
+</div>

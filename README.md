@@ -6,7 +6,7 @@ A world-class **Angular 21** chat UI for a **hybrid Graph-RAG** assistant. The
 domain is HR leave policy modelled as a knowledge graph — **World → North
 America → United States / Mexico / Canada** — so every answer is composed only
 from graph facts and policy passages, cited by section, with the retrieved
-**subgraph shown interactively in four switchable views**.
+**subgraph shown interactively in five switchable views**.
 
 The production system is Angular → FastAPI → Neo4j. This repository ships the
 Angular tier with an in-browser engine that runs the same eight-stage pipeline
@@ -15,7 +15,7 @@ with no backend and the real service can be dropped in behind one method.
 
 ![Feature tour](docs/tour.gif)
 
-▶ Full 72-second tour as video: [docs/tour.mp4](docs/tour.mp4) (composer controls → cited answer → sources → Force / Radial / Orbit / Replay → facts, Cypher, trace → context follow-up → comparison → LLM off → light theme → architecture)
+▶ Full tour as video: [docs/tour.mp4](docs/tour.mp4) (composer controls → cited answer → sources → Force / Radial / Orbit / 3D / Replay → facts, Cypher, trace → context follow-up → comparison → LLM off → light theme → architecture)
 
 ![Hero](docs/screenshots/01-hero.png)
 
@@ -27,14 +27,23 @@ with no backend and the real service can be dropped in behind one method.
 | Grounded answer with `[n]` citations, confidence badge and retrieval stats | Evidence → Subgraph (Force): ring = used in answer, dashed = retrieval seed |
 | ![Radial](docs/screenshots/04-evidence-radial.png) | ![Orbit](docs/screenshots/04-evidence-orbit.png) |
 | Radial taxonomy tree: World → country → policy → leave type → rule | Orbit: 3D canvas projection, depth, glow, slow rotation |
-| ![Replay](docs/screenshots/04-evidence-replay.png) | ![Facts](docs/screenshots/05-evidence-facts.png) |
-| Replay: the retrieval pipeline animated step by step on the graph | Facts: subject · relation · object · confidence, used facts first |
-| ![Sources](docs/screenshots/05-evidence-sources.png) | ![Cypher](docs/screenshots/05-evidence-cypher.png) |
-| Sources: cited passages with document breadcrumbs | Cypher: the exact queries the service ran for this turn |
+| ![3D](docs/screenshots/04-evidence-3d.png) | ![Replay](docs/screenshots/04-evidence-replay.png) |
+| 3D: WebGL force graph (three.js), particles run along the grounding edges, click a node to fly to it | Replay: the retrieval pipeline animated step by step on the graph |
+| ![Facts](docs/screenshots/05-evidence-facts.png) | ![Sources](docs/screenshots/05-evidence-sources.png) |
+| Facts: subject · relation · object · confidence, used facts first | Sources: cited passages with document breadcrumbs |
+| ![Cypher](docs/screenshots/05-evidence-cypher.png) | ![Trace](docs/screenshots/05-evidence-trace.png) |
+| Cypher: the exact queries the service ran for this turn | Trace: every pipeline stage with timing and nodes touched |
 | ![Follow-up](docs/screenshots/06-followup.png) | ![Light](docs/screenshots/08-light.png) |
 | Conversation context: "And in Canada?" is resolved against the last turn | Light theme |
+| ![Help popover](docs/screenshots/11-help-cypher.png) | ![Guide](docs/screenshots/12-guide-cypher.png) |
+| The "?" on the Evidence tab strip explains whichever tab is open (here: what Cypher is) | The in-app Guide explains every control, badge, tab and query clause |
 | ![Mobile hero](docs/screenshots/10-mobile-hero.png) | ![Mobile evidence](docs/screenshots/10-mobile-evidence.png) |
 | Phone width: conversations become a drawer, controls wrap in the composer | The evidence graph at 400px |
+
+Every feature is explained inside the app: the **Guide** page (sidebar footer, or "How every feature works" on the
+empty state) walks through the composer controls, confidence levels, citations, the stats line, each Evidence tab, the
+five graph views, a clause-by-clause reading of the Cypher queries, conversations and keyboard shortcuts. The **?**
+button on the Evidence tab strip gives the same explanation in place for the open tab.
 
 ### Feature parity with the Streamlit version, re-homed
 
@@ -50,7 +59,7 @@ The Streamlit prototype kept every switch in a left settings panel. Here the
 | Clear conversation | Conversation menu (⋯) |
 | Suggested questions | Hero chips on the empty state; follow-up chips after each answer |
 | `confidence: high` badge, stats line | Under every answer |
-| Evidence → Subgraph / Facts / Sources | Evidence → **Subgraph (4 views) / Facts / Sources / Cypher / Trace** |
+| Evidence → Subgraph / Facts / Sources | Evidence → **Subgraph (5 views) / Facts / Sources / Cypher / Trace** |
 
 ## The hybrid Graph-RAG pipeline
 
@@ -96,17 +105,20 @@ Figures reference real statutes (FMLA, the 2023 *vacaciones dignas* reform of LF
 Art. 76, Canada Labour Code s.239) but the company rules are illustrative — this
 is a demo corpus, not legal advice.
 
-## The four subgraph views
+## The five subgraph views
 
 | View | Built with | Why it is here |
 |---|---|---|
 | **Force** (default) | `d3-force` + SVG | Parity with the Streamlit view, polished: yellow ring = used in answer, dashed ring = retrieval seed, drag to pin, double-click to release, scroll to zoom, hover for properties and relation labels, neighbour highlighting, **Focus** dims everything the answer did not use |
 | **Radial** | `d3-hierarchy` | The domain *is* a taxonomy. A radial tree from World outward makes the inheritance chain read at once; edges outside the spanning tree are drawn dashed so nothing is hidden |
 | **Orbit** | Canvas 2D, hand-rolled 3D projection | Zero dependencies, inspired by the Claude Code dashboard ecosystem view: seeds at the core, one shell per hop, slow rotation, glow on used nodes, drag to rotate |
+| **3D** | `3d-force-graph` (three.js) | The WebGL showpiece: torus rings on used nodes, sprite labels, directional particles along the grounding edges, click-to-fly camera. Lazy-loaded (≈300 kB gzip) only when selected |
 | **Replay** | Force layout + timeline | Lights nodes up in the order the pipeline touched them — seeds, expansion, grounding — so the viewer sees *why* the answer is grounded |
 
-All four consume one `Subgraph` view-model (`seed`, `used`, `hop` per node) and
-share the tooltip, legend and focus logic in `graph-shared.ts`.
+All five consume one `Subgraph` view-model (`seed`, `used`, `hop` per node) and
+share the tooltip, legend and focus logic in `graph-shared.ts`. The library
+comparison behind these choices (cytoscape, sigma, G6, NVL, ngx-graph and more)
+is in [docs/research.md](docs/research.md).
 
 ## Modern Angular on display
 
@@ -174,7 +186,7 @@ src/app/
     chat/          hero empty state · thread · composer dock
     composer/      source + mode pills, context + LLM chips, follow-up chips, send
     message/       streamed markdown, citations, confidence, stats, actions, evidence toggle
-    evidence/      tabs · graph-force · graph-radial · graph-orbit · graph-trace · facts-table · sources-list · cypher-view · trace-steps
+    evidence/      tabs · graph-force · graph-radial · graph-orbit · graph-three · graph-trace · facts-table · sources-list · cypher-view · trace-steps
     architecture/  /architecture — the three tiers, the pipeline, the schema, the contract
 docs/superpowers/specs/   the design spec this was built against
 e2e/walk.py               Playwright smoke walk
